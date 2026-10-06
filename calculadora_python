@@ -1,1 +1,88 @@
+from tkinter import *
+
+def clique(valor):
+    # Insere o caractere correspondente no visor
+    atual = visor.get()
+    visor.set(atual + str(valor))
+
+def calcular():
+    try:
+        # Substitui os símbolos visuais pelos operadores do Python antes de calcular
+        expressao = visor.get().replace('÷', '/').replace('×', '*')
+        resultado = eval(expressao)
+        
+        # Evita exibir casas decimais desnecessárias (ex: 5.0 vira 5)
+        if isinstance(resultado, float) and resultado.is_integer():
+            resultado = int(resultado)
+            
+        visor.set(str(resultado))
+    except:
+        visor.set("Erro")
+
+def limpar_tudo():
+    visor.set("")
+
+def apagar_ultimo():
+    # Remove o último caractere do texto atual
+    atual = visor.get()
+    visor.set(atual[:-1])
+
+# Configuração da janela principal
+janela = Tk()
+janela.title("Calculadora")
+janela.geometry("320x420")
+janela.config(bg="#f0f0f0")
+
+visor = StringVar()
+
+# Campo de exibição
+entrada = Entry(janela, textvariable=visor, font=("Arial", 22), justify='right')
+entrada.pack(fill=X, padx=15, pady=15, ipady=10)
+
+# Layout dos botões atualizado
+botoes = [
+    ('C', '⌫', '÷', '×'),
+    ('7', '8', '9', '-'),
+    ('4', '5', '6', '+'),
+    ('1', '2', '3', '='),
+    ('0', '.', '', '') # Linha final ajustada
+]
+
+quadro = Frame(janela)
+quadro.pack(padx=10, pady=5)
+
+for linha in botoes:
+    linha_quadro = Frame(quadro)
+    linha_quadro.pack(side=TOP, fill=X)
+    for b in linha:
+        if b == '':
+            continue
+            
+        # Define a ação de cada botão baseado no texto correspondente
+        if b == '=':
+            comando = calcular
+            cor_btn = "#4CAF50" # Verde para o igual
+            cor_texto = "white"
+        elif b == 'C':
+            comando = limpar_tudo
+            cor_btn = "#f44336" # Vermelho para limpar tudo
+            cor_texto = "white"
+        elif b == '⌫':
+            comando = apagar_ultimo
+            cor_btn = "#ff9800" # Laranja para apagar o último
+            cor_texto = "white"
+        else:
+            comando = lambda val=b: clique(val)
+            cor_btn = "#e0e0e0"
+            cor_texto = "black"
+            
+        # Ajusta a largura do botão zero para ocupar espaço duplo
+        largura = 12 if b == '0' else 5
+        
+        btn = Button(linha_quadro, text=b, width=largura, height=2, font=("Arial", 14), 
+                     bg=cor_btn, fg=cor_texto, relief=RAISED)
+        btn.config(command=comando)
+        btn.pack(side=LEFT, padx=3, pady=3, expand=True, fill=BOTH)
+
+janela.mainloop()
 
